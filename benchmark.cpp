@@ -8,9 +8,9 @@
 using namespace std;
 using namespace std::chrono;
 
-static inline uint64_t opt_count(const char* begin, const char* end) noexcept {
+static inline uint64_t opt_count(const char* begin, const char* end, const char target) noexcept {
 
-    const __m256i avx2_Target = _mm256_set1_epi8(10);
+    const __m256i avx2_Target = _mm256_set1_epi8(target);
     uint64_t result = 0;
 
     static __m256i cnk1, cnk2;
@@ -58,7 +58,7 @@ int main() {
 
     for (int i = 0; i < numIterations; ++i) {
         auto strt = steady_clock::now();
-        uint64_t count = opt_count(data, data + dataSize);
+        uint64_t count = opt_count(data, data + dataSize, 10);
         auto stop = steady_clock::now();
         auto duration = duration_cast<milliseconds>(stop - strt);
         std::cout << "Call " << std::setw(2) << i+1 << " Count: " << count << " " << duration.count() << "ms\n";
