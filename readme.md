@@ -1,4 +1,4 @@
-# Faster implementation of `std::count` using AVX2 and SSE 4.2 POPCNT
+# Faster implementation of `std::count` using AVX2
 
 
 ### Times per 10 iterations, tested on i9-13900H Using GCC 13
