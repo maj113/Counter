@@ -15,8 +15,6 @@
  *                      Defaults to false.
  * @return The total count of occurrences of the target character in the specified range.
  */
-uint64_t opt_count_parallel(const char* begin, const char* end, const char target, bool singleThreaded) noexcept;
+uint64_t opt_count_parallel(const char *begin, const char *end, char target, bool singleThreaded) noexcept;
 
-uint64_t opt_count_parallel(const char* begin, const char* end, const int target, bool singleThreaded) noexcept;
-
-
+uint64_t opt_count_parallel(const char *begin, const char *end, int target, bool singleThreaded) noexcept;
