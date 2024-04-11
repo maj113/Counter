@@ -70,7 +70,7 @@ uint64_t opt_count_parallel(const char *begin, const char *end, const char targe
 
 uint64_t opt_count_parallel(const char *begin, const char *end, const int target, bool singleThreaded) noexcept {
     // Horrible code
-    if (0 <= target <= 127)
-        return opt_count_parallel(begin, end, (const char) target, singleThreaded);
+    if (target >= 0 && target <= 127)
+        return opt_count_parallel(begin, end, static_cast<const char>(target), singleThreaded);
     return 0;
 }
