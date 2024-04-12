@@ -11,16 +11,16 @@ using namespace std;
 using namespace chrono;
 
 uint64_t bench(const char *data, uint64_t dataSize, uint64_t numIterations, bool useOptimized, bool singleThreaded) {
-    milliseconds cumulativeTime = milliseconds(0);
+    auto cumulativeTime = milliseconds(0);
     string methodName = useOptimized ? "Opt" : "Std";
     string threadingMode = singleThreaded ? "Single Threaded" : "Multi Threaded";
     cout << "Benchmarking " << threadingMode << " " << methodName << ":\n";
     for (uint64_t i = 0; i < numIterations; ++i) {
         auto strt = steady_clock::now();
         uint64_t count = useOptimized
-                             ? opt_count_parallel(
-                                 data, data + dataSize, 10, singleThreaded)
-                             : std::count(data, data + dataSize, 10);
+                    ? opt_count_parallel(
+                        data, data + dataSize, 10, singleThreaded)
+                    : std::count(data, data + dataSize, 10);
         auto stop = steady_clock::now();
         auto duration = duration_cast<milliseconds>(stop - strt);
         cumulativeTime += duration;
