@@ -35,7 +35,8 @@ inline uint64_t opt_count(const char *s, const char *e, const char c) {
         + _mm256_extract_epi64(sum, 2)
         + _mm256_extract_epi64(sum, 3);
 
-    while(s != e) 
+    // Using != is unsafe, use a stricter check
+    while(s < e) 
         count += *s++ == c;
 
     return count;
