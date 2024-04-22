@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <vector>
 #include <future>
-#include <iostream>
 
 // @powturbo's code with slight modifications  
 inline uint64_t opt_count(const char *s, const char *e, const char c) {
