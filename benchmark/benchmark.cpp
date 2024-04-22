@@ -10,29 +10,51 @@
 using namespace std;
 using namespace chrono;
 
+void printTime(const nanoseconds &duration) {
+    double time = duration.count();
+    std::string_view unit;
+    if (time >= 1e9) {
+        time *= 1e-9;
+        unit = "s";
+    } else if (time >= 1e6) {
+        time *= 1e-6;
+        unit = "ms";
+    } else if (time >= 1e3) {
+        time *= 1e-3;
+        unit = "us";
+    } else {
+        unit = "ns";
+    }
+    cout << fixed << setprecision(2) << time << unit;
+}
+
 uint64_t bench(const char *data, uint64_t dataSize, uint64_t numIterations, bool useOptimized, bool singleThreaded) {
-    auto cumulativeTime = milliseconds(0);
+    auto cumulativeTime = nanoseconds(0);
     string methodName = useOptimized ? "Opt" : "Std";
     string threadingMode = singleThreaded ? "Single Threaded" : "Multi Threaded";
     cout << "Benchmarking " << threadingMode << " " << methodName << ":\n";
     for (uint64_t i = 0; i < numIterations; ++i) {
-        auto strt = steady_clock::now();
+        auto strt = high_resolution_clock::now();
         uint64_t count = useOptimized
                     ? opt_count_parallel(
                         data, data + dataSize, 10, singleThreaded)
                     : std::count(data, data + dataSize, 10);
-        auto stop = steady_clock::now();
-        auto duration = duration_cast<milliseconds>(stop - strt);
+        auto stop = high_resolution_clock::now();
+        auto duration = stop - strt;
         cumulativeTime += duration;
 
-        cout << "  Call " << setw(2) << i + 1 << ": " << "Count: " << count << ", " << duration.count() << "ms\n";
+        cout << "  Call " << setw(2) << i + 1 << ": " << "Count: " << count << ", ";
+        printTime(duration);
+        cout << "\n";
     }
 
-    cout << "  Cumulative Time: " << cumulativeTime.count() << "ms\n";
+    cout << "  Cumulative Time: ";
+    printTime(cumulativeTime);
+    cout << "\n";
 
     double totalBytesProcessed = static_cast<double>(dataSize) * numIterations;
-    double totalms = cumulativeTime.count() / 1000.0;
-    double throughputGBps = (totalBytesProcessed / totalms) / (1024 * 1024 * 1024);
+    double totalSecs = cumulativeTime.count() / 1e9;
+    double throughputGBps = (totalBytesProcessed / totalSecs) / (1024 * 1024 * 1024);
 
     cout << "  Throughput: " << throughputGBps << " GB/s\n" << endl;
 
@@ -40,7 +62,7 @@ uint64_t bench(const char *data, uint64_t dataSize, uint64_t numIterations, bool
 }
 
 int main() {
-    constexpr uint64_t dataSize = 1000000000;
+    constexpr uint64_t dataSize = 10000000000;
     constexpr size_t alignment = 32;
 
     char *data_unaligned = new char[dataSize + alignment];
@@ -50,7 +72,7 @@ int main() {
 
     char *data = data_unaligned + adjustment;
     memset(data, '\n', dataSize);
-    for (auto i = 0; i < dataSize; i += 2)
+    for (uint64_t i = 0; i < dataSize; i += 2)
         data[i] = 'x';
 
     constexpr uint64_t numIterations = 10;
@@ -64,12 +86,17 @@ int main() {
     double improvement_multi = ((double) std_single_cumulative - (double) opt_multi_cumulative) / (double)
                                std_single_cumulative * 100.0;
 
-    cout << "Improvement over std::count: single threaded: " << fixed << setprecision(2) << abs(improvement_single) <<
-            "% multi threaded: " << fixed << setprecision(2) << abs(improvement_multi) << "%" << endl;
+    cout << "Improvement over std::count: single threaded: " << fixed << setprecision(2) 
+        << (improvement_single >= 0 ? "" : "-") << abs(improvement_single) 
+        << "% multi threaded: " << fixed << setprecision(2) 
+        << (improvement_multi >= 0 ? "" : "-") << abs(improvement_multi) << "%" << endl;
 
-    cout << "Times faster over std::count: single threaded: " << fixed << setprecision(2) << (double)
-            std_single_cumulative / (double) opt_single_cumulative << "x multi threaded: " << fixed << setprecision(2)
-            << (double) std_single_cumulative / (double) opt_multi_cumulative << "x" << endl;
+    cout << "Times faster over std::count: single threaded: " << fixed << setprecision(2) 
+        << ((double)std_single_cumulative / (double)opt_single_cumulative >= 0 ? "" : "-") 
+        << abs((double)std_single_cumulative / (double)opt_single_cumulative) 
+        << "x multi threaded: " << fixed << setprecision(2) 
+        << ((double)std_single_cumulative / (double)opt_multi_cumulative >= 0 ? "" : "-") 
+        << abs((double)std_single_cumulative / (double)opt_multi_cumulative) << "x" << endl;
 
     delete[] data_unaligned;
     return 0;

@@ -1,0 +1,1 @@
+add_executable(benchmark_counter ../counter.cpp benchmark.cpp)
