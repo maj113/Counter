@@ -49,27 +49,27 @@ uint64_t opt_count_parallel(const char *begin, const char *end, const char targe
     const unsigned int num_threads = std::thread::hardware_concurrency();
     const size_t total_length = end - begin;
 
-    if (total_length < num_threads * 2 or singleThreaded)
+    // FIXME: Don't multiply by 1000 when used with verifier
+    if (total_length < num_threads * 1000)
         return opt_count(begin, end, target);
     
     const size_t chunk_size = (total_length + num_threads - 1) / num_threads;
 
-    std::vector<std::thread> threads;
-    threads.reserve(num_threads);
+    std::vector<std::future<uint64_t>> futures(num_threads);
 
     uint64_t total_count = 0;
 
-    for (size_t i = 0; i < num_threads; ++i) {
+    for (unsigned int i = 0; i < num_threads; ++i) {
         const char *chunk_begin = begin + i * chunk_size;
         const char *chunk_end = std::min(end, chunk_begin + chunk_size);
 
-        threads.emplace_back([&total_count, chunk_begin, chunk_end, target] {
-            total_count += opt_count(chunk_begin, chunk_end, target);
+        futures[i] = std::async(std::launch::async, [&total_count, chunk_begin, chunk_end, target] {
+            return opt_count(chunk_begin, chunk_end, target);
         });
     }
 
-    for (auto &thread: threads)
-        thread.join();
+    for (auto &future : futures)
+        total_count += future.get();
 
     return total_count;
 }
