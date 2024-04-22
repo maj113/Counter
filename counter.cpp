@@ -43,6 +43,9 @@ inline uint64_t opt_count(const char *s, const char *e, const char c) {
 }
 
 uint64_t opt_count_parallel(const char *begin, const char *end, const char target, bool singleThreaded) noexcept {
+    if (singleThreaded)
+        return opt_count(begin, end, target);
+
     const unsigned int num_threads = std::thread::hardware_concurrency();
     const size_t total_length = end - begin;
 
