@@ -62,7 +62,7 @@ uint64_t opt_count_parallel(const char *begin, const char *end, const char targe
         const char *chunk_begin = begin + i * chunk_size;
         const char *chunk_end = std::min(end, chunk_begin + chunk_size);
 
-        futures[i] = std::async(std::launch::async, [&total_count, chunk_begin, chunk_end, target] {
+        futures[i] = std::async(std::launch::async, [chunk_begin, chunk_end, target] {
             return opt_count(chunk_begin, chunk_end, target);
         });
     }
