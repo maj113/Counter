@@ -25,6 +25,6 @@ jobs:
 
     - name: Run Executables
       run: |
-        ${{github.workspace}}\benchmark\Debug\benchmark_counter.exe
-        ${{github.workspace}}\verify\Debug\verify_counter.exe
+        ${{github.workspace}}\build\benchmark\Debug\benchmark_counter.exe
+        ${{github.workspace}}\build\verify\Debug\verify_counter.exe
 
