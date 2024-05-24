@@ -2,6 +2,11 @@
 
 #include <cstdint>
 
+#define COUNT_STANDARD 0
+#define COUNT_OPTIMIZED 1
+#define COUNT_OPTIMIZED_PARALLEL 2
+constexpr unsigned int num_threads = 20;
+
 /**
  * @brief Counts occurrences of a target character in a given range of characters using parallel execution.
  *
@@ -15,6 +20,6 @@
  *                      Defaults to false.
  * @return The total count of occurrences of the target character in the specified range.
  */
-uint64_t opt_count_parallel(const char *begin, const char *end, char target, bool singleThreaded) noexcept;
+uint64_t counter(const char *begin, const char *end, char target, bool singleThreaded) noexcept;
 
-uint64_t opt_count_parallel(const char *begin, const char *end, int target, bool singleThreaded) noexcept;
+uint64_t counter(const char *begin, const char *end, int target, bool singleThreaded) noexcept;
